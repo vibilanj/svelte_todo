@@ -13,6 +13,10 @@
      */
     "allowJs": true,
     "checkJs": true,
+    "baseUrl": ".",
+    "paths": {
+      "$root/*": ["./src/*"]
+    },
     "isolatedModules": true
   },
   "include": ["src/**/*.d.ts", "src/**/*.ts", "src/**/*.js", "src/**/*.svelte"],
