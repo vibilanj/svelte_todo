@@ -1,3 +1,14 @@
+<script lang="ts">
+    import type { ITodo } from '$root/types/todo'
+    //state
+    let todos: ITodo[] = [
+    { id: '1e4a59703af84', text: 'Todo 1', completed: true },
+    { id: '9e09bcd7b9349', text: 'Todo 2', completed: false },
+    { id: '9e4273a51a37c', text: 'Todo 3', completed: false },
+    { id: '53ae48bf605cc', text: 'Todo 4', completed: false },
+  ]
+</script>
+
 <main>
     <h1 class="title">todos</h1>
 
@@ -18,18 +29,22 @@
         </form>
 
         <ul class="todo-list">
+            {#each todos as todo (todo.id) }
             <li class="todo">
                 <div class="todo-item">
                     <div>
-                        <input id="todo" class="toggle" type="checkbox">
+                        <input 
+                        checked={todo.completed}
+                        id="todo" class="toggle" type="checkbox">
                         <label aria-label="Check todo" class="todo-check" for="todo" />
                     </div>
-                    <span class="todo-text">Todo 1</span>
+                    <span class="todo-text">{todo.text}</span>
                     <button aria-label="Remove todo" class="remove" />
                 </div>
 
                 <!-- <input class="edit" type="text" autofocus> -->
             </li>
+            {/each}
         </ul>
 
         <div class="actions">
