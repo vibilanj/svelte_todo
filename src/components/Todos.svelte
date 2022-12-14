@@ -1,9 +1,10 @@
 <script lang="ts">
-    import type { ITodo } from '$root/types/todo'
+    import type { FiltersType, ITodo } from '$root/types/todo'
 
     import AddTodo from './AddTodo.svelte'
     import Todo from './Todo.svelte'
     import TodosLeft from './TodosLeft.svelte'
+    import FilterTodos from './FilterTodos.svelte'
 
     // state
     let todos: ITodo[] = [
@@ -13,12 +14,15 @@
         { id: '53ae48bf605cc', text: 'Todo 4', completed: false },
     ]
 
+    let selectedFilter: FiltersType = 'all'
+
     // debug
     $: console.log(todos)
 
     // computed
     $: todosAmount = todos.length
     $: incompleteTodos = todos.filter(todo => !todo.completed).length
+    $: filteredTodos = filterTodos(todos, selectedFilter)
 
     // methods
     function generateRandomId(): string {
@@ -60,6 +64,21 @@
       let currentTodo = todos.findIndex(todo => todo.id === id)
       todos[currentTodo].text = newTodo
     }
+
+    function setFilter(newFilter: FiltersType): void {
+      selectedFilter = newFilter
+    }
+
+    function filterTodos(todos: ITodo[], filter: FiltersType): ITodo[] {
+      switch (filter) {
+        case 'all':
+          return todos
+        case 'active':
+          return todos.filter(todo => !todo.completed)
+        case 'completed':
+          return todos.filter(todo => todo.completed)
+      }
+    }
 </script>
 
 <main>
@@ -70,18 +89,14 @@
 
         {#if todosAmount}
         <ul class="todo-list">
-            {#each todos as todo (todo.id)}
+            {#each filteredTodos as todo (todo.id)}
                 <Todo {todo} {completeTodo} {removeTodo} {editTodo} />
             {/each}
         </ul>
 
         <div class="actions">
             <TodosLeft {incompleteTodos} />
-            <div class="filters">
-                <button class="filter">All</button>
-                <button class="filter">Active</button>
-                <button class="filter">Completed</button>
-            </div>
+            <FilterTodos {selectedFilter} {setFilter} />
             <button class="clear-completed">Clear completed</button>
         </div>
         {/if}
@@ -89,8 +104,6 @@
 </main>
 
 <style>
-    /* Todos */
-  
     .title {
       font-size: var(--font-80);
       font-weight: inherit;
@@ -136,28 +149,6 @@
         0 9px 1px -3px hsla(0, 0%, 0%, 0.2), 0 16px 0 -6px hsl(0, 0%, 96%),
         0 17px 2px -6px hsla(0, 0%, 0%, 0.2);
       z-index: -1;
-    }
-  
-    /* Filters */
-  
-    .filters {
-      display: flex;
-      gap: var(--spacing-4);
-    }
-  
-    .filter {
-      text-transform: capitalize;
-      padding: var(--spacing-4) var(--spacing-8);
-      border: 1px solid transparent;
-      border-radius: var(--radius-base);
-    }
-  
-    .filter:hover {
-      border: 1px solid var(--color-highlight);
-    }
-  
-    .selected {
-      border-color: var(--color-highlight);
     }
   </style>
   
