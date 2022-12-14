@@ -1,5 +1,6 @@
 <script lang="ts">
     import type { FiltersType, ITodo } from '$root/types/todo'
+    import { useStorage } from '$root/stores/useStorage'
 
     import AddTodo from './AddTodo.svelte'
     import Todo from './Todo.svelte'
@@ -8,12 +9,7 @@
     import ClearTodos from './ClearTodos.svelte'
 
     // state
-    let todos: ITodo[] = [
-        { id: '1e4a59703af84', text: 'Todo 1', completed: true },
-        { id: '9e09bcd7b9349', text: 'Todo 2', completed: false },
-        { id: '9e4273a51a37c', text: 'Todo 3', completed: false },
-        { id: '53ae48bf605cc', text: 'Todo 4', completed: false },
-    ]
+    let todos = useStorage<ITodo[]>('todos', [])
 
     let selectedFilter: FiltersType = 'all'
 
@@ -21,10 +17,10 @@
     $: console.log(todos)
 
     // computed
-    $: todosAmount = todos.length
-    $: incompleteTodos = todos.filter(todo => !todo.completed).length
-    $: filteredTodos = filterTodos(todos, selectedFilter)
-    $: completedTodos = todos.filter(todo => todo.completed).length
+    $: todosAmount = $todos.length
+    $: incompleteTodos = $todos.filter(todo => !todo.completed).length
+    $: filteredTodos = filterTodos($todos, selectedFilter)
+    $: completedTodos = $todos.filter(todo => todo.completed).length
 
     // methods
     function generateRandomId(): string {
@@ -37,20 +33,20 @@
             text: todo,
             completed: false,
         }
-        todos = [...todos, newTodo]
+        $todos = [...$todos, newTodo]
     }
 
     function toggleCompleted(event: MouseEvent): void {
         let { checked } = event.target as HTMLInputElement
 
-        todos = todos.map(todo => ({
+        $todos = $todos.map(todo => ({
             ...todo,
             completed: checked
         }))
     } 
 
     function completeTodo(id: string): void {
-        todos = todos.map(todo => {
+        $todos = $todos.map(todo => {
             if (todo.id === id) {
                 todo.completed = !todo.completed
             }
@@ -59,11 +55,11 @@
     }
 
     function removeTodo(id: string): void {
-      todos = todos.filter(todo => todo.id !== id)
+      $todos = $todos.filter(todo => todo.id !== id)
     }
 
     function editTodo(id: string, newTodo: string): void {
-      let currentTodo = todos.findIndex(todo => todo.id === id)
+      let currentTodo = $todos.findIndex(todo => todo.id === id)
       todos[currentTodo].text = newTodo
     }
 
@@ -83,7 +79,7 @@
     }
 
     function clearCompleted(): void {
-      todos = todos.filter(todo => todo.completed !== true)
+      $todos = $todos.filter(todo => todo.completed !== true)
     }
 </script>
 
