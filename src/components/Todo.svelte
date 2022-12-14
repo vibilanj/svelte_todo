@@ -1,33 +1,54 @@
 <script lang="ts">
     import type { ITodo } from '$root/types/todo'
-    //state
+  import { compute_slots } from 'svelte/internal';
+
+    import AddTodo from './AddTodo.svelte'
+
+    // state
     let todos: ITodo[] = [
-    { id: '1e4a59703af84', text: 'Todo 1', completed: true },
-    { id: '9e09bcd7b9349', text: 'Todo 2', completed: false },
-    { id: '9e4273a51a37c', text: 'Todo 3', completed: false },
-    { id: '53ae48bf605cc', text: 'Todo 4', completed: false },
-  ]
+        { id: '1e4a59703af84', text: 'Todo 1', completed: true },
+        { id: '9e09bcd7b9349', text: 'Todo 2', completed: false },
+        { id: '9e4273a51a37c', text: 'Todo 3', completed: false },
+        { id: '53ae48bf605cc', text: 'Todo 4', completed: false },
+    ]
+
+    // debug
+    $: console.log(todos)
+
+    // computed
+    $: todosAmount = todos.length
+
+    // methods
+    function generateRandomId(): string {
+        return Math.random().toString(16).slice(2)
+    }
+
+    function addTodo(todo: string): void {
+        let newTodo: ITodo = {
+            id: generateRandomId(),
+            text: todo,
+            completed: false,
+        }
+        todos = [...todos, newTodo]
+    }
+
+    function toggleCompleted(event: MouseEvent): void {
+        let { checked } = event.target as HTMLInputElement
+
+        todos = todos.map(todo => ({
+            ...todo,
+            completed: checked
+        }))
+    } 
 </script>
 
 <main>
     <h1 class="title">todos</h1>
 
     <section class="todos">
-        <form>
-            <input type="checkbox" id="toggle-all" class="toggle-all">
-            <label aria-label="Mark all as complete" for="toggle-all">
-                Mark all as complete
-            </label>
+        <AddTodo {addTodo} {toggleCompleted} {todosAmount} />
 
-            <input 
-            id="new-todo"
-            class="new-todo"
-            placeholder="What needs to be done?"
-            type="text"
-            autofocus
-            >
-        </form>
-
+        {#if todosAmount}
         <ul class="todo-list">
             {#each todos as todo (todo.id) }
             <li class="todo">
@@ -56,6 +77,7 @@
             </div>
             <button class="clear-completed">Clear completed</button>
         </div>
+        {/if}
     </section>
 </main>
 
@@ -107,42 +129,6 @@
         0 9px 1px -3px hsla(0, 0%, 0%, 0.2), 0 16px 0 -6px hsl(0, 0%, 96%),
         0 17px 2px -6px hsla(0, 0%, 0%, 0.2);
       z-index: -1;
-    }
-  
-    /* Add todo */
-  
-    .toggle-all {
-      width: 1px;
-      height: 1px;
-      position: absolute;
-      opacity: 0;
-    }
-  
-    .toggle-all + label {
-      position: absolute;
-      font-size: 0;
-    }
-  
-    .toggle-all + label:before {
-      content: '❯';
-      display: block;
-      padding: var(--spacing-16);
-      font-size: var(--font-24);
-      color: var(--color-gray-58);
-      transform: rotate(90deg);
-    }
-  
-    .toggle-all:checked + label:before {
-      color: var(--color-gray-28);
-    }
-  
-    .new-todo {
-      width: 100%;
-      padding: var(--spacing-16);
-      padding-left: 60px;
-      font-size: var(--font-24);
-      border: none;
-      border-bottom: 1px solid var(--shadow-1);
     }
   
     /* Todo */
