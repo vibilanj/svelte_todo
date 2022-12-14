@@ -1,48 +1,52 @@
 <script lang="ts">
-    import type { ITodo } from '$root/types/todo'
+  import { fade, slide } from 'svelte/transition'
 
-    type CompleteTodoType = (id: string) => void 
-    type RemoveTodoType = (id: string) => void 
-    type EditTodoType = (id: string, newTodo: string) => void 
+  import type { ITodo } from '$root/types/todo'
 
-    export let todo: ITodo
-    export let completeTodo: CompleteTodoType
-    export let removeTodo: RemoveTodoType
-    export let editTodo: EditTodoType
+  type CompleteTodoType = (id: string) => void 
+  type RemoveTodoType = (id: string) => void 
+  type EditTodoType = (id: string, newTodo: string) => void 
+  type DurationType = number
 
-    let editing = false
+  export let todo: ITodo
+  export let completeTodo: CompleteTodoType
+  export let removeTodo: RemoveTodoType
+  export let editTodo: EditTodoType
+  export let duration: DurationType
 
-    function toggleEdit() {
-      editing = true
+  let editing = false
+
+  function toggleEdit() {
+    editing = true
+  }
+
+  function handleEdit(event: KeyboardEvent, id: string) {
+    let pressedKey = event.key
+    let targetElement = event.target as HTMLInputElement
+    let newTodo = targetElement.value
+
+    switch (pressedKey) {
+      case 'Escape':
+        targetElement.blur()
+        break
+      case 'Enter':
+        editTodo(id, newTodo)
+        targetElement.blur()
+        break
     }
+  }
 
-    function handleEdit(event: KeyboardEvent, id: string) {
-      let pressedKey = event.key
-      let targetElement = event.target as HTMLInputElement
-      let newTodo = targetElement.value
+  function handleBlur(event: FocusEvent, id:string) {
+    let targetElement = event.target as HTMLInputElement
+    let newTodo = targetElement.value
 
-      switch (pressedKey) {
-        case 'Escape':
-          targetElement.blur()
-          break
-        case 'Enter':
-          editTodo(id, newTodo)
-          targetElement.blur()
-          break
-      }
-    }
-
-    function handleBlur(event: FocusEvent, id:string) {
-      let targetElement = event.target as HTMLInputElement
-      let newTodo = targetElement.value
-
-      editTodo(id, newTodo)
-      targetElement.blur()
-      editing = false
-    }
+    editTodo(id, newTodo)
+    targetElement.blur()
+    editing = false
+  }
 </script>
 
-<li class:editing class="todo">
+<li in:slide={{ duration }} out:fade={{ duration }} class:editing class="todo">
     <div class="todo-item">
         <div>
             <input 
